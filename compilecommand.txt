@@ -1,10 +1,13 @@
-gcc -c -I/usr/lib/jvm/java-9-openjdk-amd64/include -I/usr/lib/jvm/java-9-openjdk-amd64/include/linux -fPIC example.c -o example.o
-gcc -shared -o libfoo.so foo1.o foo2.o
-
-
+swig -c++ -java ocr.i
 
  g++ -c -I/usr/lib/jvm/java-9-openjdk-amd64/include -I/usr/lib/jvm/java-9-openjdk-amd64/include/linux -fPIC -I/usr/local/include/opencv -I/usr/local/include/opencv2 -L/usr/local/lib -I/usr/local/include -I/usr/local/include/tesseract -I/usr/include/leptonica ocr.cpp -o ocr.o -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lopencv_video -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_contrib -lopencv_legacy -lopencv_stitching -lpthread -llept -ltesseract `pkg-config opencv --cflags --libs`
 
+ g++ -c -I/usr/lib/jvm/java-9-openjdk-amd64/include -I/usr/lib/jvm/java-9-openjdk-amd64/include/linux -fPIC -I/usr/local/include/opencv -I/usr/local/include/opencv2 -L/usr/local/lib -I/usr/local/include -I/usr/local/include/tesseract -I/usr/include/leptonica ocr_wrap.cxx -o ocr_wrap.o -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lopencv_video -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_contrib -lopencv_legacy -lopencv_stitching -lpthread -llept -ltesseract `pkg-config opencv --cflags --libs`
+
 g++ -shared -o libocr.so ocr.o ocr_wrap.o -I/usr/lib/jvm/java-9-openjdk-amd64/include -I/usr/lib/jvm/java-9-openjdk-amd64/include/linux -fPIC -I/usr/local/include/opencv -I/usr/local/include/opencv2 -L/usr/local/lib -I/usr/local/include -I/usr/local/include/tesseract -I/usr/include/leptonica -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lopencv_video -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_contrib -lopencv_legacy -lopencv_stitching -lpthread -llept -ltesseract `pkg-config opencv --cflags --libs`
+
+javac *.java
+
+java runme
 
 
