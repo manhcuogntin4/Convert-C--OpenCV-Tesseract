@@ -99,7 +99,7 @@ void *recognizeLineAtomic(void* params)
 }
 
 
-output_result ocr(std::string st)
+void ocr(char** st, int size, std::string strFileText)
 {
 
     // Init tesseract apis
@@ -107,10 +107,13 @@ output_result ocr(std::string st)
     initTess(ocrs);
 
     std::vector<cv::Mat> images;
-    for(int fidx = 1; fidx < 2; fidx++)
+    std::cout<<sizeof(st)/sizeof(st[0])<<std::endl;
+    for(int fidx = 0; fidx < size; fidx++)
     {
-        std::string input_path = st;
-        cv::Mat src_img = cv::imread(st, 0);
+        std::cout<<sizeof(st)/sizeof(st[0])<<std::endl;
+        std::cout<<st[fidx]<<std::endl;
+        char* input_path = st[fidx];
+        cv::Mat src_img = cv::imread(input_path, 0);
         std::vector<int> markers;
         markers.clear();
         int WHITE_SPACE = 0;
@@ -242,6 +245,14 @@ output_result ocr(std::string st)
     output_result ot;
     readThreadParams(params,ot);
     delete [] params;
+    std::ofstream myfile;
+    const char *cstr = strFileText.c_str();
+    myfile.open(cstr);
+    for(std::vector<int>::iterator i=ot.index.begin(); i!=ot.index.end();++i)
+    {
+        myfile<<ot.strResult[*i]<<std::endl;
+    }
 
-	return ot;
+    myfile.close();
+    //return ot;
 }

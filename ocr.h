@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <fstream>
 #include <opencv2/opencv.hpp>
 #include <sstream>
 #include <tesseract/baseapi.h>
@@ -26,4 +27,4 @@ void readThreadParams(pthreadParams_t* paramPtr, output_result &out);
 void initThreadParams(pthreadParams_t* paramPtr, const std::vector<cv::Mat *> &src, tesseract::TessBaseAPI *OCR);
 void initTess(std::vector< tesseract::TessBaseAPI *> &ocrs);
 void *recognizeLineAtomic(void* params);
-output_result ocr(std::string st);
+void ocr(char** st, int size, std::string strFileText);

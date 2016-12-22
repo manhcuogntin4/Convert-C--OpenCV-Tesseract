@@ -1,4 +1,4 @@
-
+import java.util.Vector;
 public class runme {
 
   static {
@@ -12,7 +12,7 @@ public class runme {
 
   public static void main(String argv[]) {
     // Call our gcd() function
-    
-   ocr.ocr("test.png");
+   String tt[]={"test.png", "test1.png"};
+   ocr.ocr(tt, 2, "out.txt");
   }
 }
