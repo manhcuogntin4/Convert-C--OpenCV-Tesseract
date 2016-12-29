@@ -48,7 +48,7 @@ void initTess(std::vector< tesseract::TessBaseAPI *> &ocrs)
         OCR_api->Init("./", "eng");
         std::cout << "End Init" << std::endl;
         OCR_api->SetVariable("debug_file", "/dev/null");
-        OCR_api->SetPageSegMode(tesseract::PSM_SINGLE_LINE);
+        OCR_api->SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
         ocrs.push_back(OCR_api);
     }
 }
@@ -105,9 +105,12 @@ void ocr(char** st, int size, std::string strFileText)
     // Init tesseract apis
     std::vector<tesseract::TessBaseAPI*> ocrs;
     initTess(ocrs);
-
-    std::vector<cv::Mat> images;
-    std::cout<<sizeof(st)/sizeof(st[0])<<std::endl;
+    std::vector<cv::Mat> images, clean_images;
+    int max_height=0;
+    int total_height=0;
+    int moyen_height=0;
+    int count=0;
+    //std::cout<<sizeof(st)/sizeof(st[0])<<std::endl;
     for(int fidx = 0; fidx < size; fidx++)
     {
         std::cout<<sizeof(st)/sizeof(st[0])<<std::endl;
@@ -193,38 +196,79 @@ void ocr(char** st, int size, std::string strFileText)
                 }
             }
             int width = max_x - min_x + 1;
-	    if( height > 10 && width > 12 && height < 40)
-	    { 
-            cv::Rect ROI2 = cv::Rect(min_x, ROI.y, width, height);
-	    std::stringstream line_filename;
-	    line_filename << input_path << "_lines_" << i << ".png";
-	    cv::imwrite(line_filename.str(), src_img(ROI2));
-            images.push_back(src_img(ROI2));
-            ROIs.push_back(ROI2);
+    	    if( height > 10 && width > 12)
+    	    { 
+                cv::Rect ROI2 = cv::Rect(min_x, ROI.y, width, height);
+    	       //std::stringstream line_filename;
+    	       //line_filename << input_path << "_lines_" << i << ".png";
+    	       //cv::imwrite(line_filename.str(), src_img(ROI2));
+                images.push_back(src_img(ROI2));
+                ROIs.push_back(ROI2);
+                count++;
+                total_height+=height;
+                if(height>max_height)
+                        max_height=height;
             }
         }
 
 
     std::cout << "Image " << fidx << " processed " << std::endl;
     }
+    //
+    moyen_height=total_height/count;
+    int seuil=(moyen_height+max_height);
+    std::cout<<"seuil:" << moyen_height+0.2*seuil<<"Moyenn:"<<moyen_height<<" Max:"<< max_height<<std::endl;
+    // TODO: Remouve the big size images (logo)
+    int count_clean=0;
+    for(int i=0;i<(int) images.size();i++){
+        if(images[i].rows< moyen_height+0.2*seuil)
+        {
+            std::cout<<images[i].rows<<std::endl;
+            clean_images.push_back(images[i]);
+            //std::stringstream line_filename;
+            //line_filename << "_lines_" << i << ".png";
+            //cv::imwrite(line_filename.str(), images[i]);
+            count_clean++;
+        }
 
+    }
+    
     std::vector< std::vector<cv::Mat *> > lang_images;
 
+    
     for(int j = 0; j < 8; j++)
     {
         std::vector<cv::Mat*> imgs;
-        for(int i = 0; i < (int) images.size(); i+= 8)
-        {
-            if(i + j < images.size())
+        if((count_clean*1.0/count)<0.8)
+        {   
+            std::cout<<"True"<<std::endl;
+            for(int i = 0; i < (int) images.size(); i+= 8)
             {
+                if(i + j < images.size())
+                {
 
-                imgs.push_back(&images[i + j]);
+                    imgs.push_back(&images[i + j]);
+
+                }
 
             }
-
+            lang_images.push_back(imgs);
         }
-        lang_images.push_back(imgs);
+        else
+        {
+            std::cout<<"Not max value"<<std::endl;
+             for(int i = 0; i < (int) clean_images.size(); i+= 8)
+            {
+                if(i + j < clean_images.size())
+                {
 
+                    imgs.push_back(&clean_images[i + j]);
+
+                }
+
+            }
+            lang_images.push_back(imgs);
+        }
 
     }
 
